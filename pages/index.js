@@ -2,16 +2,31 @@ import Head from 'next/head'
 import { getCountry } from '../lib/slice/countrySlice';
 import { wrapper } from '../lib/store'
 import { useDispatch, useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
+
 export default function Home() {
   const [query, setQuery] = useState('');
 
   const countriesData = useSelector(state => state.countrySlice)
 
-  // set the value of our useState query anytime the user types on our input
+
+  
+  //Our search filter function
+    const searchFilter = useMemo(() => {
+    return countriesData.countries.filter(
+      (el) => el.name.common.toLowerCase().includes(query)
+    )
+    },[query,countriesData.countries])
+  
+  //Applying our search filter function to our array of countries recieved from the API
+
+  
+  //Handling the input on our search bar
   const handleChange = (e) => {
-    setQuery(() => e.target.value)
+  setQuery(e.target.value)
   }
+  
   return (
     <div>
       <Head>
@@ -20,13 +35,13 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className={`bebas bg-gray-100`}>
-        <div className='w-11/12 m-auto mt-40 flex flex-col md:flex-row justify-between items-start md:items-center gap-5 md:gap-0'>
-          <input onChange={handleChange} type='text' />
+        <div className='w-full m-auto py-[3rem] flex md:flex-row justify-center items-start md:items-center gap-5 md:gap-0'>
+          <input onChange={handleChange} className='w-1/2' placeholder='Search' type='text' />
         </div>
 
         <div className='w-11/12 m-auto md:grid mt-10 gap-10 md:grid-cols-4 flex flex-col'>
-          {countriesData.countries.map((country) => (
-            <div className='bg-white shadow-lg rounded-md overflow-hidden h-[25rem] cursor-pointer'>
+          {searchFilter.map((country,index) => (
+            <div key={index} className='bg-white shadow-lg rounded-md overflow-hidden h-[25rem] cursor-pointer'>
               <img src={country.flags.png} alt='Country card' class='h-56 w-full object-cover' />
               <span className='px-3 py-2 block font-bold text-xl'>{country.name.common}</span>
               <span className='px-3 py-2 block'><span className='font-bold'>Popoulation:</span> <span className='font-light'>{country.population}</span></span>
